@@ -1,0 +1,96 @@
+Atividade para Décimo quarto visto, Data: 17/10/2024
+Aluno: Daniel Ribeiro da costa, TDS sesi senai
+1:
+CREATE DATABASE hospital
+GO
+USE hospital
+GO
+CREATE TABLE Pacientes(
+ID_pacientes INT PRIMARY KEY IDENTITY,
+Nome_pacientes VARCHAR(255),
+Data_NASCIMENTO DATE,
+Email VARCHAR(255)
+)
+CREATE TABLE Consultas(
+ID_consultas INT PRIMARY KEY IDENTITY,
+Tipo VARCHAR(255),
+Data_consultas DATETIME,
+Paciente_id INT,
+Preco DECIMAL(10, 2),
+FOREIGN KEY(Paciente_id) REFERENCES Pacientes(ID_pacientes)
+)
+CREATE TABLE Medicos(
+ID_medicos INT PRIMARY KEY IDENTITY,
+especializacao VARCHAR(255),
+Nome_medicos VARCHAR(255),
+Pacienteid INT,
+consulta_id INT,
+FOREIGN KEY(pacienteid) REFERENCES Pacientes(ID_pacientes),
+FOREIGN KEY(consulta_id) REFERENCES Consultas(ID_consultas)
+)
+INSERT INTO Medicos(Nome_medicos, especializacao, pacienteid, consulta_id) VALUES
+('Dr. Ana Clara', 'Cardiologia', 1, 1),
+('Dr. João Silva', 'Dermatologia', 2, 2),
+('Dra. Maria Oliveira', 'Pediatria', 3, 3),
+('Dr. Carlos Souza', 'Ortopedia', 4, 4),
+('Dra. Fernanda Lima', 'Ginecologia', 5, 5),
+('Dr. Ricardo Gomes', 'Neurologia', 6, 6),
+('Dra. Luciana Santos', 'Nutrição', 7, 7),
+('Dr. Marcos Alves', 'Psiquiatria', 8, 8),
+('Dra. Tatiane Costa', 'Oftalmologia', 9, 9),
+('Dr. Felipe Rocha', 'Endocrinologia', 10, 10);
+
+INSERT INTO Pacientes(Nome_pacientes, Data_NASCIMENTO, Email) VALUES
+('Ana Silva', '1990-05-12', 'ana.silva@example.com'),
+('Carlos Souza', '1985-03-22', 'carlos.souza@example.com'),
+('Maria Oliveira', '1978-07-30', 'maria.oliveira@example.com'),
+('João Pereira', '1992-12-15', 'joao.pereira@example.com'),
+('Fernanda Lima', '1980-09-05', 'fernanda.lima@example.com'),
+('Ricardo Gomes', '1987-11-20', 'ricardo.gomes@example.com'),
+('Luciana Santos', '1995-01-25', 'luciana.santos@example.com'),
+('Marcos Alves', '1982-06-18', 'marcos.alves@example.com'),
+('Tatiane Costa', '1993-04-10', 'tatiane.costa@example.com'),
+('Felipe Rocha', '1991-08-30', 'felipe.rocha@example.com');
+INSERT INTO consultas (tipo, Data_consultas, paciente_id, preco) VALUES
+('Consulta Geral', '2024-01-15T09:00:00', 1, 150.00),
+('Consulta Odontológica', '2024-01-16T10:30:00', 2, 200.00),
+('Consulta Dermatológica', '2024-01-17T14:00:00', 3, 180.00),
+('Consulta Cardiológica', '2024-01-18T11:15:00', 4, 250.00),
+('Consulta Pediátrica', '2024-01-19T08:45:00', 5, 120.00),
+('Consulta Ginecológica', '2024-01-20T13:30:00', 6, 220.00),
+('Consulta Nutricional', '2024-01-21T15:00:00', 7, 130.00),
+('Consulta Ortopédica', '2024-01-22T16:15:00', 8, 170.00),
+('Consulta Neurológica', '2024-01-23T09:30:00', 9, 240.00),
+('Consulta Psiquiátrica', '2024-01-24T10:00:00', 10, 260.00);
+
+CREATE FUNCTION CalcularPrecoTotal (@Idpedido INT)
+RETURNS DECIMAL(10, 2)
+AS
+BEGIN
+DECLARE @PrecoTotal DECIMAL(10, 2)
+SELECT @PrecoTotal = SUM(c.Preco)
+FROM Pacientes P
+JOIN Consultas c ON P.ID_pacientes = c.Paciente_id
+WHERE P.ID_pacientes = @Idpedido
+RETURN @PrecoTotal;
+END;
+GO
+CREATE PROCEDURE ObterDetalhesConsulta
+@ConsultaID INT
+AS
+BEGIN
+SELECT
+p.Nome_pacientes AS Nomep,
+
+m.Nome_medicos AS Nomem,
+c.ID_consultas,
+(
+SELECT dbo.CalcularPrecoTotal(@ConsultaID)
+)AS PrecoTotal
+FROM Pacientes p
+JOIN Consultas c ON p.ID_pacientes = c.Paciente_id
+JOIN Medicos m ON m.Pacienteid = p.ID_pacientes
+WHERE p.ID_pacientes = @ConsultaID
+
+END
+EXEC ObterDetalhesConsulta @ConsultaID = 6;

@@ -1,0 +1,294 @@
+Atividade para Décimo visto, Data: 23/09/2024
+Aluno: Daniel Ribeiro da costa, TDS sesi senai
+Banco 1:
+CREATE DATABASE HOSPITALDB
+GO
+USE HOSPITALDB
+GO
+CREATE TABLE PACIENTES(
+ID_paciente INT IDENTITY PRIMARY KEY,
+Nome_paciente VARCHAR(255) NOT NULL,
+Data_nascimento DATE NOT NULL,
+SEXO VARCHAR(255) NOT NULL
+)
+
+CREATE TABLE CONSULTAS(
+ID_consulta INT IDENTITY PRIMARY KEY,
+paciente_id INT,
+Data_consulta DATETIME NOT NULL,
+Diagnostico VARCHAR(255) NOT NULL,
+Medico VARCHAR(255) NOT NULL
+FOREIGN KEY(paciente_id) REFERENCES PACIENTES(ID_paciente)
+)
+
+CREATE NONCLUSTERED INDEX IX_PACIENTES_Nome_paciente ON
+PACIENTES(Nome_paciente)
+;
+CREATE NONCLUSTERED INDEX IX_CONSULTAS_Data_consulta ON
+CONSULTAS(Data_consulta)
+;
+INSERT INTO PACIENTES (Nome_paciente, Data_nascimento, SEXO) VALUES
+('Alice Silva', '1970-05-15', 'Feminino'),
+('joão Souza', '1960-03-22', 'Masculino'),
+('Carla Pereira', '1992-08-30', 'Feminino'),
+('Daniel Lima', '1995-11-05', 'Masculino'),
+('Evelyn Santos', '1985-02-18', 'Feminino'),
+('Fernando Oliveira', '1993-07-25', 'Masculino'),
+('Gabriela Costa', '1991-12-12', 'Feminino'),
+('Henrique Almeida', '1994-09-10', 'Masculino'),
+('Isabella Ferreira', '1989-01-23', 'Feminino'),
+('Júlio Mendes', '1987-04-07', 'Masculino')
+;
+
+INSERT INTO CONSULTAS(paciente_id, Data_consulta, Diagnostico, Medico) VALUES
+(1,'2024-09-01T10:00:00', 'Gripe', 'Dr. Carlos Mendes'),
+(2,'2024-09-02T14:30:00', 'Fratura', 'Dr. Carlos Mendes'),
+(3,'2024-09-03T09:15:00', 'Hipertensão', 'Dra. Ana Paula'),
+(4,'2024-09-04T11:00:00', 'Diabetes', 'Dra. Ana Paula'),
+(5,'2024-09-05T15:45:00', 'Alergia', 'Dr. Roberto Silva'),
+(6,'2024-09-06T13:30:00', 'Cefaleia', 'Dr. Roberto Silva'),
+(7,'2024-09-07T08:00:00', 'Infecção', 'Dra. Mariana Costa'),
+(8,'2024-09-08T16:15:00', 'Consulta de rotina', 'Dra. Mariana Costa'),
+(9,'2024-09-09T12:00:00', 'Exame de sangue', 'Dr. Felipe Oliveira'),
+(10,'2024-09-10T17:30:00', 'Consulta de retorno', 'Dr. Felipe Oliveira')
+;
+INDICES EXPLICAÇÃO:
+Operação Física - A verificação significa que uma análise da estrutura e eficiência do índice
+em relação aos dados armazenados, ou seja, é uma análise dos dados da tabela.
+Operação Lógica - Faz uma análise de como a consulta dos dados afeta o acesso aos
+mesmos.
+Modo de execução Estimado - É a previsão do número de linhas que o otimizador de
+consultas espera que uma operação retorne ao executar um plano.
+Armazenamento - Basicamente os dados estão armazenados em linhas(no caso do ROW).
+Custo estimado do Operador - O sql faz uma estimativa de qual vai ser o custo de esforço
+necessário para o SQL executar uma operação.
+Custo Estimado de E/S - É uma pesquisa estimada que o aplicativo faz para entender
+quantas operações de leituras para gravar no disco, sendo uma das mais importantes para
+vermos quanto a leitura custará para o disco da máquina
+Custo Estimado da Subárvore - É o custo acumulado de todas as operações necessárias
+para executar uma parte do plano de consulta
+Custo Estimado de CPU - É o custo que o processador irá arcar para executar uma
+operação de consulta no SQl
+Número estimado de execuções - Esta parte conta o número estimado de execuções que o
+banco de dados espera que nós vamos fazer por consulta, no meu caso é 1.
+Número estimado de linhas de todas as execuções - indica o número acumulado de linhas
+que serão processadas por todas as execuções repetidas de uma operação em uma
+consulta
+
+Número estimado de linhas por execução - Indica a quantidade esperada de linhas
+processadas por uma determinada operação executada, no meu caso 10.
+Tamanho estimado da linha - Basicamente estima quantos bytes cada linha ocupa no
+armazenamento
+Ordenado: refere-se à organização ou classificação dos dados com base em uma ou mais
+colunas
+ID do nó - É um tipo de ID que ajuda a distinguir e identificar diferentes operações para
+otimizar o plano de execução das consultas e das linhas, e ajuda a referir qual parte da
+consulta está sendo executada.
+
+--a)
+SELECT Nome_paciente
+FROM PACIENTES
+WHERE Nome_paciente LIKE 'joão%'
+;
+
+--b)
+SELECT ID_consulta, paciente_id, Medico
+FROM CONSULTAS
+WHERE Data_consulta = '2024-09-08T16:15:00'
+
+--c)
+SELECT Medico,
+COUNT(*) AS NumerosdeConsultas
+FROM CONSULTAS
+GROUP BY Medico
+
+--d)
+SELECT P.Nome_paciente, C.Diagnostico
+FROM PACIENTES P
+JOIN CONSULTAS C ON P.ID_paciente = C.paciente_id
+WHERE P.Data_nascimento <= '1974-09-20'
+
+--e)
+SELECT P.Nome_paciente,C.Data_consulta,C.Diagnostico
+FROM PACIENTES P
+JOIN CONSULTAS C ON P.ID_paciente = C.paciente_id
+WHERE C.Data_consulta =
+(
+SELECT MAX(Data_consulta)
+FROM Consultas
+WHERE paciente_id = p.ID_paciente
+);
+
+Banco 2:
+CREATE DATABASE HospitalEspecialidadesDB
+GO
+USE HospitalEspecialidadesDB
+GO
+CREATE TABLE Medicos(
+ID_Medico INT IDENTITY PRIMARY KEY,
+Nome_medico VARCHAR(255) NOT NULL,
+Especialidade VARCHAR(255) NOT NULL
+)
+CREATE TABLE Consultas(
+ID_Consulta INT IDENTITY PRIMARY KEY,
+IDPaciente INT,
+medico_id INT,
+DataConsulta DATETIME NOT NULL,
+Diagnostico VARCHAR(255) NOT NULL,
+FOREIGN KEY (medico_id) REFERENCES Medicos(ID_Medico)
+)
+
+CREATE NONCLUSTERED INDEX IX_Medicos_Especialidade ON
+Medicos(Especialidade);
+CREATE NONCLUSTERED INDEX IX_Consultas_DataConsulta ON
+Consultas(DataConsulta);
+INSERT INTO Medicos(Nome_medico, Especialidade) VALUES
+('Dr. João Silva', 'Cardiologia'),
+('Dra. Maria Oliveira', 'Pediatria'),
+('Dr. Pedro Almeida', 'Dermatologia'),
+('Dra. Ana Costa', 'Ortopedia'),
+('Dr. Lucas Mendes', 'Ginecologia'),
+('Dr. Carlos Santos', 'Cardiologia'),
+('Dra. Fernanda Lima', 'Pediatria'),
+('Dr. Renato Souza', 'Dermatologia'),
+('Dra. Tatiane Rocha', 'Ortopedia'),
+('Dr. Felipe Gomes', 'Ginecologia');
+INSERT INTO Consultas(IDPaciente, medico_id, DataConsulta, Diagnostico) VALUES
+(1, 2,'2024-01-10T09:00:00', 'Gripe'),
+(2, 2,'2024-01-12T10:30:00', 'Infecção de ouvido'),
+(3, 3,'2024-01-15T14:00:00', 'Alergia'),
+(4, 4,'2024-01-20T11:15:00', 'Fratura no braço'),
+(5, 2,'2024-01-22T13:45:00', 'Dor de cabeça'),
+(6, 1,'2024-08-23T08:00:00', 'Hipertensão'),
+(7, 7,'2024-01-28T15:30:00', 'Diabetes'),
+(8, 10,'2024-08-25T17:00:00', 'Resfriado'),
+(9, 5,'2024-02-05T09:30:00', 'Asma'),
+(10, 6,'2024-02-10T12:00:00', 'Exame de rotina');
+--a)
+SELECT Nome_medico, Especialidade
+FROM Medicos
+WHERE Especialidade = 'Pediatria'
+
+--b)
+SELECT M.Nome_medico,
+COUNT(*) AS Numero_de_Consultas
+FROM Medicos M
+JOIN Consultas C ON M.ID_Medico = C.medico_id
+GROUP BY M.ID_Medico, M.Nome_medico;
+
+--c)
+SELECT C.ID_Consulta, C.DataConsulta, M.Nome_medico, M.Especialidade
+FROM Medicos M
+JOIN Consultas C ON C.medico_id = M.ID_Medico
+
+WHERE M.Especialidade = 'Pediatria'
+
+--d)
+SELECT C.ID_Consulta, C.DataConsulta, M.Nome_medico
+FROM Medicos M
+JOIN Consultas C ON C.medico_id = M.ID_Medico
+WHERE C.DataConsulta >= '2024-08-23'
+
+--e)
+SELECT m.Nome_medico,
+COUNT(c.ID_Consulta) AS total_consultas
+FROM consultas c
+JOIN medicos m ON c.medico_id = m.ID_Medico
+GROUP BY m.ID_Medico, m.Nome_medico
+HAVING COUNT(c.ID_Consulta) =
+(SELECT MAX(total_consultas)
+FROM
+( SELECT COUNT(ID_Consulta) AS total_consultas
+FROM consultas
+GROUP BY medico_id) AS sub);
+
+Banco 3:
+CREATE DATABASE HOSPITALFATURASDB
+GO
+USE HOSPITALFATURASDB
+GO
+CREATE TABLE Pacientes(
+ID_paciente INT IDENTITY PRIMARY KEY,
+Nome_paciente VARCHAR(255) NOT NULL,
+PlanoSaude VARCHAR(255) NOT NULL
+)
+CREATE TABLE Procedimentos(
+ID_procedimento INT IDENTITY PRIMARY KEY,
+Nome_procedimento VARCHAR(255) NOT NULL,
+paciente_id INT,
+Data_procedimento DATE NOT NULL,
+Custo Decimal(10,2),
+FOREIGN KEY(paciente_id) REFERENCES Pacientes(ID_paciente)
+)
+CREATE TABLE Faturas(
+ID_fatura INT IDENTITY PRIMARY KEY,
+procedimento_id INT,
+Valortotal DECIMAL(10,2) NOT NULL,
+Datapagamento DATE NOT NULL,
+
+FOREIGN KEY(procedimento_id) REFERENCES Procedimentos(ID_procedimento)
+)
+CREATE NONCLUSTERED INDEX IX_PlanoSaude ON Pacientes(PlanoSaude)
+CREATE NONCLUSTERED INDEX IX_Data_procedimento ON
+Procedimentos(Data_procedimento)
+CREATE NONCLUSTERED INDEX IX_Datapagamento ON Faturas(Datapagamento)
+INSERT INTO Pacientes(Nome_paciente, PlanoSaude) VALUES
+('Ana Silva', 'Plano A'),
+('Bruno Costa', 'Plano B'),
+('Carla Pereira', 'Plano C'),
+('Daniel Oliveira', 'Plano D'),
+('Eduardo Santos', 'Plano E'),
+('Fernanda Lima', 'Plano A'),
+('Gabriel Almeida', 'Plano B'),
+('Helena Rocha', 'Plano C'),
+('Igor Martins', 'Plano D'),
+('Juliana Souza', 'Plano E');
+INSERT INTO Procedimentos(Nome_procedimento, paciente_id, Data_procedimento,
+Custo) VALUES
+('Consulta Médica', 1,'2024-01-10', 150.00),
+('Exame de Sangue', 2,'2024-01-15', 80.00),
+('Raio-X', 3,'2024-01-20', 200.00),
+('Ultrassom', 4,'2024-01-25', 250.00),
+('Fisioterapia', 5,'2024-02-01', 100.00),
+('Vacinação', 6,'2024-02-05', 50.00),
+('Eletrocardiograma', 7,'2024-02-10', 120.00),
+('Tomografia', 8,'2024-02-15', 400.00),
+('Consulta de Retorno', 9,'2024-02-20', 150.00),
+('Análise Laboratorial', 10,'2024-02-25', 90.00);
+INSERT INTO Faturas(procedimento_id, Datapagamento, Valortotal) VALUES
+(1,'2024-01-10', 150.00),
+(2,'2024-01-15', 80.00),
+(3,'2024-01-20', 200.00),
+(4,'2024-01-25', 250.00),
+(5,'2024-02-01', 100.00),
+(6,'2024-02-05', 50.00),
+(7,'2024-02-10', 120.00),
+(8,'2024-02-15', 400.00),
+(9,'2024-02-20', 150.00),
+(10,'2024-02-25', 90.00);
+--A)
+SELECT *
+FROM Pacientes
+
+WHERE PlanoSaude = 'Plano A';
+
+--B)
+SELECT *
+FROM Procedimentos
+WHERE Data_procedimento BETWEEN '2024-01-01' AND '2024-01-31';
+
+--C)
+SELECT SUM(Custo) AS TotalFaturado
+FROM Procedimentos
+WHERE Data_procedimento BETWEEN '2024-01-01' AND '2024-01-31';
+
+--D)
+SELECT p.Nome_procedimento, p.Custo
+FROM Procedimentos p
+JOIN Pacientes pa ON p.paciente_id = pa.ID_paciente
+WHERE pa.Nome_paciente = 'Ana Silva';
+
+--E)
+SELECT *
+FROM Faturas
+WHERE DataPagamento = '2024-01-10';

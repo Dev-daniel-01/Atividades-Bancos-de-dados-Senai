@@ -1,0 +1,269 @@
+Atividade para Décimo primeiro visto, Data: 25/09/2024
+Aluno: Daniel Ribeiro da costa, TDS sesi senai
+banco 1:
+CREATE DATABASE UniversidadeDB
+GO
+USE UniversidadeDB
+GO
+CREATE TABLE Estudantes(
+ID_estudante INT IDENTITY PRIMARY KEY,
+Nome_estudante VARCHAR(255) NOT NULL,
+Email VARCHAR(255) NOT NULL,
+Data_nascimento DATE NOT NULL
+)
+CREATE TABLE Cursos(
+ID_curso INT IDENTITY PRIMARY KEY,
+Nome_curso VARCHAR(255) NOT NULL,
+Duracao INT NOT NULL
+)
+CREATE TABLE Matriculas(
+ID_matricula INT IDENTITY PRIMARY KEY,
+estudante_id INT,
+curso_id INT,
+Data_matricula DATE NOT NULL,
+FOREIGN KEY(estudante_id) REFERENCES Estudantes(ID_Estudante),
+FOREIGN KEY(curso_id) REFERENCES Cursos(ID_Curso)
+)
+INSERT INTO Estudantes(Nome_estudante, Email, Data_nascimento) VALUES
+('Alice Silva', 'alice.silva@example.com', '1990-01-15'),
+('Bruno Oliveira', 'bruno.oliveira@example.com', '1985-02-20'),
+('Carla Santos', 'carla.santos@example.com', '1992-03-10'),
+('Daniel Costa', 'daniel.costa@example.com', '1988-04-25'),
+('Elisa Pereira', 'elisa.pereira@example.com', '1995-05-30'),
+('Felipe Almeida', 'felipe.almeida@example.com', '1993-06-05'),
+('Giselle Rocha', 'giselle.rocha@example.com', '1991-07-18'),
+('Henrique Martins', 'henrique.martins@example.com', '1989-08-22'),
+('Isabella Lima', 'isabella.lima@example.com', '1994-09-12'),
+('João Mendes', 'joao.mendes@example.com', '1987-10-30');
+INSERT INTO Cursos(Nome_curso, Duracao) VALUES
+('Curso de Introdução ao Python', 40),
+('Curso Avançado de Data Science', 120),
+
+('Curso de Fotografia Digital', 30),
+('Curso de Marketing Digital', 60),
+('Curso de Gestão de Projetos', 80);
+INSERT INTO Matriculas(estudante_id, curso_id, Data_matricula) VALUES
+('1', '1','2023-01-15'),
+('2', '1','2023-02-20'),
+('3', '2','2023-03-10'),
+('4', '2','2023-04-25'),
+('5', '3','2023-05-30'),
+('6', '3','2023-06-05'),
+('7', '4','2023-07-18'),
+('8', '4','2023-08-22'),
+('9', '5','2023-09-12'),
+('10', '5','2023-10-30');
+--A)
+CREATE VIEW vw_estudantesmatriculados AS
+SELECT *
+FROM Estudantes E
+JOIN Matriculas M ON E.ID_estudante = M.estudante_id
+SELECT * FROM vw_estudantesmatriculados
+--B)
+CREATE VIEW vw_estudantesmatriculadosEMcursoespecifico AS
+SELECT *
+FROM Estudantes E
+JOIN Matriculas M ON E.ID_estudante = M.estudante_id
+WHERE M.curso_id = '5'
+SELECT * FROM vw_estudantesmatriculadosEMcursoespecifico
+--C)
+CREATE VIEW vw_estudantesmatriculadosEM6M AS
+SELECT *
+FROM Estudantes E
+JOIN Matriculas M ON E.ID_estudante = M.estudante_id
+WHERE M.Data_matricula >= '2024-03-25'
+SELECT * FROM vw_estudantesmatriculadosEM6M
+--D)
+CREATE VIEW vw_IdadeAlunos AS
+SELECT E.Nome_estudante,
+E.Data_nascimento,
+DATEDIFF(YEAR, E.Data_nascimento, GETDATE()) AS idade
+FROM Estudantes E;
+
+SELECT * FROM vw_IdadeAlunos
+--E)
+CREATE VIEW vw_cursos48 AS
+SELECT *
+FROM Cursos
+WHERE Duracao > 48
+
+SELECT * FROM vw_cursos48
+banco 2:
+CREATE DATABASE UniversidadeProfessoresDB
+GO
+USE UniversidadeProfessoresDB
+GO
+CREATE TABLE Professores(
+ID_professor INT IDENTITY PRIMARY KEY,
+Nome_professor VARCHAR(255) NOT NULL,
+Especialidade VARCHAR(255) NOT NULL
+)
+CREATE TABLE Disciplinas(
+ID_disciplina INT IDENTITY PRIMARY KEY,
+Nome_disciplina VARCHAR(255) NOT NULL,
+Carga_horario INT NOT NULL
+)
+CREATE TABLE Leciona(
+professor_id INT,
+disciplina_id INT
+FOREIGN KEY(professor_id) REFERENCES Professores(ID_professor),
+FOREIGN KEY(disciplina_id) REFERENCES Disciplinas(ID_disciplina)
+)
+INSERT INTO Professores(Nome_professor, Especialidade) VALUES
+('Professor Almeida', 'Matemática'),
+('Professora Costa', 'História'),
+('Professor Silva', 'Biologia'),
+('Professora Oliveira', 'Química'),
+('Professor Santos', 'Física');
+INSERT INTO Disciplinas(Nome_disciplina, Carga_horario) VALUES
+('Matemática', 60),
+('Português', 60),
+
+('História', 40),
+('Geografia', 40),
+('Ciências', 50),
+('Educação Física', 30),
+('Artes', 40),
+('Inglês', 50),
+('Química', 50),
+('Física', 50),
+('Sociologia', 30),
+('Filosofia', 30),
+('Educação Religiosa', 20),
+('Tecnologia da Informação', 40),
+('Literatura', 30);
+INSERT INTO Leciona(professor_id, disciplina_id) VALUES
+(1, 1),
+(1, 2),
+(2, 3),
+(2, 4),
+(3, 5),
+(3, 6),
+(4, 7),
+(4, 8),
+(5, 9),
+(5, 10);
+--a)
+CREATE VIEW vw_disciplinaseprofessores AS
+SELECT d.Nome_disciplina, p.Nome_professor
+FROM Professores p
+LEFT JOIN Leciona l ON p.id_professor = l.professor_id
+LEFT JOIN Disciplinas d ON l.disciplina_id = d.ID_disciplina;
+SELECT * FROM vw_disciplinaseprofessores
+--b)
+CREATE VIEW vw_professoresfisica AS
+SELECT p.Nome_professor, d.Nome_disciplina
+FROM Professores p
+LEFT JOIN Leciona l ON p.id_professor = l.professor_id
+LEFT JOIN Disciplinas d ON l.disciplina_id = d.ID_disciplina
+WHERE d.Nome_disciplina = 'Física';
+SELECT * FROM vw_professoresfisica
+--c)
+CREATE VIEW vw_disciplinamais70 AS
+SELECT Nome_disciplina, Carga_horario
+FROM Disciplinas
+
+WHERE Carga_horario > 70;
+SELECT * FROM vw_disciplinamais70
+--d)
+CREATE VIEW vw_professoresdisciplinas AS
+SELECT p.Nome_professor, d.Nome_disciplina
+FROM Professores p
+LEFT JOIN Leciona l ON p.id_professor = l.professor_id
+LEFT JOIN Disciplinas d ON l.disciplina_id = d.ID_disciplina;
+SELECT * FROM vw_professoresdisciplinas
+
+banco 3:
+CREATE DATABASE BibliotecaUniversitariaDB
+GO
+USE BibliotecaUniversitariaDB
+GO
+
+CREATE TABLE Livros(
+ID_livros INT IDENTITY PRIMARY KEY,
+Titulo VARCHAR(255) NOT NULL,
+Ano_publicação INT NOT NULL
+)
+CREATE TABLE Alunos(
+ID_alunos INT IDENTITY PRIMARY KEY,
+Nome_aluno VARCHAR(255) NOT NULL,
+Curso VARCHAR(255) NOT NULL
+)
+CREATE TABLE Emprestimos(
+livro_id INT,
+aluno_id INT,
+Data_emprestimo DATE NOT NULL,
+Data_devolucao DATE,
+FOREIGN KEY(livro_id) REFERENCES Livros(ID_livros),
+FOREIGN KEY(aluno_id) REFERENCES Alunos(ID_alunos)
+)
+INSERT INTO Livros(Titulo, Ano_publicação) VALUES
+('Dom Casmurro', 1899),
+('O Senhor dos Anéis', 1954),
+('1984', 1949),
+
+('A Revolução dos Bichos', 1945),
+('A Moreninha', 1844),
+('O Pequeno Príncipe', 1943),
+('Moby Dick', 1851),
+('Cem Anos de Solidão', 1967),
+('Orgulho e Preconceito', 1813),
+('O Alquimista', 1988);
+INSERT INTO Alunos(Nome_aluno, Curso) VALUES
+('Alice Santos', 'Matemática'),
+('Bruno Oliveira', 'Física'),
+('Carla Mendes', 'Química'),
+('Daniel Lima', 'Biologia'),
+('Eva Souza', 'História'),
+('Felipe Costa', 'Geografia'),
+('Gabriela Rocha', 'Literatura'),
+('Henrique Alves', 'Educação Física'),
+('Isabela Ferreira', 'Artes'),
+('Júlio César', 'Engenharia');
+INSERT INTO Emprestimos(aluno_id, livro_id, Data_emprestimo, Data_devolucao) VALUES
+(1, 1, '2024-01-10', '2024-01-20'),
+(2, 2, '2024-02-15', '2024-02-25'),
+(3, 3, '2024-03-01', NULL),
+(4, 4, '2024-04-05', '2024-04-15'),
+(5, 5, '2024-05-10', NULL),
+(6, 6, '2024-06-20', '2024-06-30'),
+(7, 7, '2024-07-07', '2024-07-14'),
+(8, 8, '2024-08-10', NULL),
+(9, 9, '2024-09-01', '2024-09-10'),
+(10, 10, '2024-10-05', '2024-10-12');
+--a)
+CREATE VIEW vw_SEMDEVOLUCAO AS
+SELECT l.Titulo
+FROM Livros l
+JOIN Emprestimos e ON l.ID_livros = e.livro_id
+WHERE e.Data_devolucao IS NULL
+SELECT * FROM vw_SEMDEVOLUCAO
+--b)
+CREATE VIEW vw_HISTORICOS AS
+SELECT A.Nome_aluno, L.Titulo, E.Data_emprestimo, E.Data_devolucao
+FROM Alunos A
+JOIN Emprestimos E ON A.ID_alunos = E.aluno_id
+LEFT JOIN Livros L ON E.livro_id = L.ID_livros
+
+SELECT * FROM vw_HISTORICOS
+--c)
+CREATE VIEW vw_SEMEMPRESTIMO AS
+SELECT l.Titulo
+FROM Livros l
+JOIN Emprestimos e ON l.ID_livros = e.livro_id
+WHERE e.Data_emprestimo IS NULL
+SELECT * FROM vw_SEMEMPRESTIMO
+--d)
+CREATE VIEW vw_CURSO AS
+SELECT A.Nome_aluno, L.Titulo, E.Data_emprestimo, E.Data_devolucao
+FROM Alunos A
+JOIN Emprestimos E ON A.ID_alunos = E.aluno_id
+LEFT JOIN Livros L ON E.livro_id = L.ID_livros
+WHERE A.Curso = 'Biologia';
+SELECT * FROM vw_CURSO
+--e)
+CREATE VIEW vw_livro_velho AS
+SELECT L.Titulo, l.Ano_publicação
+FROM Livros l
+WHERE l.Ano_publicação < 1974;
+SELECT * FROM vw_livro_velho

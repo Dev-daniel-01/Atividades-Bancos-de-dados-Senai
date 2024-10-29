@@ -1,0 +1,357 @@
+Atividade para Décimo terceiro visto, Data: 15/10/2024
+Aluno: Daniel Ribeiro da costa, TDS sesi senai
+1:
+CREATE DATABASE CONCRETOFORTE
+GO
+USE CONCRETOFORTE
+GO
+CREATE TABLE PROJETO(
+ID_projeto INT IDENTITY PRIMARY KEY,
+Nome_projeto VARCHAR(255) NOT NULL,
+Data_inicio DATE,
+Status VARCHAR(255) -- 'Em andamento', 'Concluído';
+)
+CREATE TABLE FASE(
+ID_fase INT IDENTITY PRIMARY KEY,
+Nome_fase VARCHAR(255) NOT NULL,
+Data_iniciof DATE NOT NULL,
+Data_termino DATE NOT NULL,
+id_projeto INT,
+Status VARCHAR(255) -- 'Em andamento', 'Concluído';
+FOREIGN KEY(id_projeto) REFERENCES Projeto(ID_projeto)
+)
+CREATE TABLE Funcionario(
+ID_funcionario INT IDENTITY PRIMARY KEY,
+Nome_funcionario VARCHAR(255) NOT NULL,
+Cargo VARCHAR(255) NOT NULL,
+id_projeto INT,
+FOREIGN KEY(id_projeto) REFERENCES PROJETO(ID_projeto)
+)
+INSERT INTO PROJETO(Nome_projeto, Data_inicio, Status)VALUES
+('Projeto Alpha', '2023-01-15', 'Em andamento'),
+('Projeto Beta', '2023-02-20', 'Em andamento'),
+('Projeto Gama', '2023-03-10', 'Concluído'),
+('Projeto Delta', '2023-04-05', 'Em andamento'),
+('Projeto Epsilon', '2023-05-25', 'Concluído');
+INSERT INTO FASE(Nome_fase, Data_iniciof, Data_termino, id_projeto,
+Status)VALUES
+('Fase 1', '2023-01-10', '2023-12-20', 1, 'Em andamento'),
+('Fase 2', '2023-01-21', '2023-12-10', 2, 'Em andamento'),
+
+('Fase 3', '2023-02-11', '2023-03-05', 3, 'Concluída'),
+('Fase 4', '2023-03-06', '2023-03-25', 4, 'Concluída'),
+('Fase 5', '2023-03-26', '2023-04-15', 5, 'Concluída');
+INSERT INTO Funcionario(Nome_funcionario, cargo, id_projeto)VALUES
+('João Silva', 'Analista de Sistemas', 1),
+('Maria Oliveira', 'Desenvolvedora Frontend', 2),
+('Pedro Santos', 'Gerente de Projetos', 3),
+('Ana Costa', 'Designer Gráfico', 4),
+('Lucas Almeida', 'Especialista em Marketing', 5);
+SELECT * FROM PROJETO
+SELECT * FROM FASE
+SELECT * FROM Funcionario
+--A)
+BEGIN TRANSACTION;
+INSERT INTO PROJETO(Nome_projeto, Data_inicio, Status) VALUES
+('Projeto F', '2024-10-11', 'Em andamento');
+DECLARE @idprojeto INT = SCOPE_IDENTITY();
+INSERT INTO Funcionario(Nome_funcionario, Cargo, id_projeto) VALUES
+('João Silva', 'Analista de Sistemas', @idprojeto);
+IF @@ERROR <> 0
+BEGIN
+ROLLBACK;
+PRINT'Foi encontrado um erro, nenhuma altteração foi feita'
+END
+ELSE
+BEGIN
+COMMIT;
+PRINT'Alteraçao foi feita com sucesso'
+END
+
+--B)
+BEGIN TRANSACTION;
+UPDATE FASE
+SET Status = 'Concluida'
+WHERE Nome_fase = 'Fundação' AND
+
+id_projeto = 1;
+IF @@ROWCOUNT = 0
+BEGIN
+ROLLBACK
+PRINT'Foi encontrado um erro, nenhuma alteração foi feita.'
+END
+ELSE
+BEGIN
+COMMIT;
+PRINT'Alteraçao foi feita com sucesso'
+END
+--C)
+BEGIN TRANSACTION
+DELETE FROM FASE
+WHERE id_projeto = 2;
+DELETE FROM PROJETO
+WHERE ID_projeto = 2;
+IF @@ERROR <> 0
+BEGIN
+ROLLBACK;
+PRINT'Foi encontrado um erro, nenhuma altteração foi feita'
+END
+ELSE
+BEGIN
+COMMIT;
+PRINT'Alteraçao foi feita com sucesso'
+END
+--D)
+BEGIN TRANSACTION;
+UPDATE Funcionario
+SET id_projeto = 3
+WHERE Nome_funcionario = 'João Silva';
+IF @@ERROR <> 0
+BEGIN
+ROLLBACK;
+
+PRINT'Foi encontrado um erro, nenhuma altteração foi feita'
+END
+ELSE
+BEGIN
+COMMIT;
+PRINT'Alteraçao foi feita com sucesso'
+END
+2:
+--2
+CREATE DATABASE Banco_Financeiro
+GO
+USE Banco_Financeiro
+GO
+CREATE TABLE Cliente (
+ID_cliente INT IDENTITY(1,1) PRIMARY KEY,
+Nome_cliente NVARCHAR(100) NOT NULL,
+CPF CHAR(14) UNIQUE NOT NULL
+);
+CREATE TABLE Conta (
+ID_conta INT IDENTITY(1,1) PRIMARY KEY,
+Numero_conta VARCHAR(20) UNIQUE NOT NULL,
+Saldo DECIMAL(10, 2) NOT NULL DEFAULT 0.00,
+cliente_id INT,
+FOREIGN KEY (cliente_id) REFERENCES Cliente(ID_cliente) ON DELETE
+CASCADE
+);
+CREATE TABLE Transacao (
+ID_transacao INT IDENTITY(1,1) PRIMARY KEY,
+Tipo_transacao VARCHAR(20),
+Valor_transacao DECIMAL(10, 2) NOT NULL,
+Data_ransacao DATETIME NOT NULL DEFAULT GETDATE(),
+conta_id INT,
+FOREIGN KEY (conta_id) REFERENCES Conta(Id_conta)
+);
+INSERT INTO Cliente (Nome_cliente, CPF) VALUES
+('João', '123.456.789-00'),
+('Maria dop carmo', '987.654.321-11'),
+('Carlos Sarnei', '555.666.777-22'),
+('Ana luiza', '444.333.222-33'),
+('Guilherme boulos', '111.222.333-44');
+INSERT INTO Conta (Numero_Conta, Saldo, cliente_id) VALUES
+('0001-1', 1000.00, 1),
+
+('0002-2', 1500.50, 2),
+('0003-3', 2000.75, 3),
+('0004-4', 3000.00, 4),
+('0005-5', 500.25, 5);
+INSERT INTO Transacao (Tipo_transacao, Valor_transacao, Data_ransacao,
+conta_id) VALUES
+('Depósito', 500.00, GETDATE(), 1),
+('Saque', 200.00, GETDATE(), 2),
+('Transferência', 300.00, GETDATE(), 3),
+('Depósito', 1000.00, GETDATE(), 4),
+('Saque', 50.25, GETDATE(), 5);
+--A)
+BEGIN TRANSACTION;
+INSERT INTO Conta(Numero_conta, Saldo, cliente_id) VALUES
+('12345-6', 0, 1)
+DECLARE @IDConta INT = SCOPE_IDENTITY();
+INSERT INTO Transacao(Tipo_transacao, Valor_transacao, Data_ransacao,
+conta_id) VALUES
+('Depósito', 500.00, GETDATE(), @IDConta);
+UPDATE Conta
+SET Saldo = Saldo + 500
+WHERE ID_conta = @IDConta;
+IF @@ERROR <> 0
+BEGIN
+ROLLBACK;
+PRINT'Foi encontrado um erro, nenhuma altteração foi feita'
+END
+ELSE
+BEGIN
+COMMIT;
+PRINT'Alteraçao foi feita com sucesso'
+END
+--B)
+BEGIN TRANSACTION;
+DECLARE @valorTranferencia DECIMAL(10,2) = 200.00
+
+UPDATE Conta
+SET Saldo = Saldo - @valorTranferencia
+WHERE Numero_conta = '12345-6'
+UPDATE Conta
+SET Saldo = Saldo + @valorTranferencia
+WHERE Numero_conta = '001-234567'
+IF @@ERROR <> 0
+BEGIN
+ROLLBACK;
+PRINT'Foi encontrado um erro, nenhuma altteração foi feita'
+END
+ELSE
+BEGIN
+COMMIT;
+PRINT'Alteraçao foi feita com sucesso'
+END
+--C)
+BEGIN TRANSACTION;
+DELETE FROM Transacao
+WHERE conta_id = 3;
+DELETE FROM Conta
+WHERE Id_Conta = 3;
+IF @@ERROR <> 0
+BEGIN
+ROLLBACK;
+PRINT'Foi encontrado um erro, nenhuma altteração foi feita'
+END
+ELSE
+BEGIN
+COMMIT;
+PRINT'Alteraçao foi feita com sucesso'
+END
+--D)
+BEGIN TRANSACTION;
+DECLARE @SaldoAtual DECIMAL(18,2);
+
+SELECT @SaldoAtual = Saldo FROM Conta WHERE Numero_Conta = '12345-6';
+IF @SaldoAtual < 1000.00
+BEGIN
+UPDATE Conta
+SET Saldo = Saldo + 500.00
+WHERE Numero_Conta = '12345-6';
+INSERT INTO Transacao (Tipo_transacao, Valor_transacao, Data_ransacao,
+conta_id)
+VALUES ('Depósito', 500.00, GETDATE(), 1);
+IF @@ERROR <> 0
+BEGIN
+ROLLBACK;
+PRINT'Foi encontrado um erro, nenhuma altteração foi feita'
+END
+ELSE
+BEGIN
+COMMIT;
+PRINT'Alteraçao foi feita com sucesso'
+END
+END
+3:
+--3
+CREATE DATABASE DinoWorld
+GO
+USE DinoWorld
+GO
+CREATE TABLE Cercado (
+ID_cercado INT PRIMARY KEY,
+Nome_cercado VARCHAR(50) NOT NULL,
+Capacidade INT NOT NULL
+);
+CREATE TABLE Dinossauro (
+ID_dinossauro INT PRIMARY KEY,
+Nome_dino VARCHAR(50) NOT NULL,
+Especie_dino VARCHAR(50) NOT NULL,
+Idade_dino INT NOT NULL,
+Cercados INT NOT NULL
+);
+
+CREATE TABLE Movimentacao (
+ID_movimentacao INT PRIMARY KEY,
+Dinossauro_id INT NOT NULL,
+cercado_origem_id INT NOT NULL,
+Cercado_Destino_id INT NOT NULL,
+Data_Movimentacao DATE NOT NULL,
+FOREIGN KEY (Dinossauro_id) REFERENCES Dinossauro(ID_dinossauro),
+FOREIGN KEY (cercado_origem_id) REFERENCES Cercado(ID_cercado),
+FOREIGN KEY (Cercado_Destino_id) REFERENCES Cercado(ID_cercado)
+);
+INSERT INTO Cercado (ID_cercado, Nome_cercado, Capacidade)
+VALUES
+(1, 'Cercado Grande', 100),
+(2, 'Cercado Médio', 50),
+(3, 'Cercado Pequeno', 20),
+(4, 'Cercado de Répteis', 80),
+(5, 'Cercado de Aves', 30);
+INSERT INTO Dinossauro (ID_dinossauro, Nome_dino, Especie_dino, Idade_dino,
+Cercados)
+VALUES
+(1, 'T-Rex', 'Tyrannosaurus Rex', 5, 1),
+(2, 'Velociraptor', 'Velociraptor Mongoliensis', 3, 2),
+(3, 'Stegosauro', 'Stegosaurus Stenops', 10, 3),
+(4, 'Diplodocus', 'Diplodocus Hallorum', 8, 4),
+(5, 'Pterodáctilo', 'Pterodactylus antiquus', 2, 5);
+--A)
+BEGIN TRANSACTION;
+INSERT INTO Dinossauro (Nome_dino, Especie_dino, Idade_dino, Cercados)
+VALUES ('argetinosauro', 'Tyrannosaurus argentino', 5, 6)
+IF @@ERROR <> 0
+BEGIN
+ROLLBACK;
+PRINT'Foi encontrado um erro, nenhuma altteração foi feita'
+END
+ELSE
+BEGIN
+COMMIT;
+PRINT'Alteraçao foi feita com sucesso'
+END
+
+--B)
+BEGIN TRANSACTION;
+INSERT INTO Movimentacao(Dinossauro_id, cercado_origem_id,
+Cercado_Destino_id, Data_Movimentacao)
+VALUES (1, 2, 3, GETDATE());
+UPDATE Dinossauro
+SET Cercados = 3
+WHERE Id_Dinossauro = 1;
+IF @@ERROR <> 0
+BEGIN
+ROLLBACK;
+PRINT'Foi encontrado um erro, nenhuma altteração foi feita'
+END
+ELSE
+BEGIN
+COMMIT;
+PRINT'Alteraçao foi feita com sucesso'
+END
+--C)
+BEGIN TRANSACTION;
+DELETE FROM Dinossauro
+WHERE Idade_dino > 100;
+IF @@ERROR <> 0
+BEGIN
+ROLLBACK;
+PRINT'Foi encontrado um erro, nenhuma altteração foi feita'
+END
+ELSE
+BEGIN
+COMMIT;
+PRINT'Alteraçao foi feita com sucesso'
+END
+--D)
+BEGIN TRANSACTION;
+
+INSERT INTO Movimentacao(Dinossauro_id, cercado_origem_id,
+Cercado_Destino_id, Data_Movimentacao)
+VALUES (2, 3, 4, GETDATE());
+UPDATE Dinossauro
+SET Cercados = 4
+WHERE Id_Dinossauro = 2;
+IF @@ERROR <> 0
+BEGIN
+ROLLBACK;
+PRINT'Foi encontrado um erro, nenhuma altteração foi feita'
+END
+ELSE
+BEGIN
+COMMIT;
+PRINT'Alteraçao foi feita com sucesso'
+END

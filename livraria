@@ -1,0 +1,45 @@
+Projetinho da livraria, Data: 16/08/2024
+Aluno: Daniel Ribeiro da costa, TDS sesi senai
+
+Código: 
+CREATE DATABASE Livraria
+GO
+
+USE Livraria
+GO
+
+CREATE TABLE Livros(
+Nome_livro VARCHAR(100) NOT NULL,
+Nome_autor VARCHAR(100) NOT NULL,
+Sexo_autor VARCHAR(100) NOT NULL,
+Numero_paginas INT NOT NULL,
+Nome_editora VARCHAR(100) NOT NULL ,
+Valor_livro DECIMAL(10,2),
+Estado VARCHAR(3) NOT NULL,
+ano_publi INT NOT NULL
+)
+
+INSERT INTO Livros (Nome_livro, Nome_autor, Sexo_autor, Numero_paginas, Nome_editora, Valor_livro, Estado, ano_publi) VALUES
+('Cavaleiro Real', 'Ana Claudia', 'Feminino', '465', 'Atlas', '49.09', 'RJ', '2009'),
+('SQL para leigos', 'João Nunes', 'Masculino', '450', 'Addison', '98.00', 'SP', '2018'),
+('Receitas Caseiras', 'Celia Tavares', 'Feminino', '210', 'Atlas', '45.00', 'RJ', '2008'),
+('Pessoas Efetivas', 'Eduardo Santos', 'Masculino', '390', 'Beta','78.99', 'RJ', '2018'),
+('Habitos Saudáveis', 'Eduardo Santos', 'Masculino', '630', 'Beta', '150.98', 'RJ', '2019'),
+('A casa marrom', 'Hermes Macedo', 'Masculino', '250', 'Bubba', '60.00', 'MG', '2016'),
+('Estacio Querido', 'Geraldo Francisco', 'Masculino', '310', 'Insignia', '100.00', 'ES', '2015'),
+('Pra sempre amigas', 'Leda Silva', 'Feminino', '510', 'Insignia', '78.98', 'ES', '2011'),
+('Copas inesqueciveis', 'Marco Alcantara', 'Masculino', '200', 'Larson', '130.98', 'RS', '2018'),
+('O poder da mente', 'Clara Mafra', 'Feminino', '120', 'Continental', '56.58', 'SP', '2017')
+
+SELECT * FROM Livros
+
+SELECT Nome_livro, Nome_editora FROM livros  
+
+SELECT Nome_livro, Estado FROM  Livros WHERE Sexo_autor = 'Masculino'
+
+SELECT Nome_livro, Numero_paginas FROM Livros WHERE Sexo_autor = 'Feminino'
+
+SELECT Valor_livro FROM Livros WHERE Estado = 'SP'
+
+SELECT * FROM Livros WHERE Sexo_autor = 'Masculino' AND	Estado = 'SP' OR Sexo_autor = 'Masculino' AND Estado = 'RJ'
+
